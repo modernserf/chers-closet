@@ -6,6 +6,7 @@ import { shirts, pants, getMatch } from './data'
 import background from './img/leopard-skin-print-pattern.jpg'
 import bgBottom from './img/bg-bottom.png'
 import bgTop from './img/bg-top.png'
+import wireframe from './img/wireframe.png'
 
 const Container = styled.section`
     position: fixed;
@@ -68,14 +69,10 @@ const OutfitSelector = styled.div`
 `
 
 const ItemContainer = styled.div`
-    background-color: white;
+    background-color: ${({ dark }) => dark ? 'black' : 'white'};
     border-width: 8px;
     border-style: outset;
     flex-grow: 1;
-    background-image: url(${({ image }) => image});
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    background-size: contain;
 `
 
 const ImageLayer = styled.div`
@@ -151,29 +148,33 @@ class OutfitVisualizer extends React.Component {
         this.runLoop()
     }
     runLoop = () => {
-        if (this.state.step < 3) {
+        if (this.state.step < 5) {
             setTimeout(() => {
                 this.setState(({ step }) => ({ step: step + 1 }))
                 this.runLoop()
-            }, 500)
+            }, 1000)
         }
     }
     render () {
         const { outfit: { shirtImg, pantsImg, shoesImg } } = this.props
         const { step } = this.state
         const lgroups = [
-            [bgTop],
-            [shirtImg],
-            [shirtImg, pantsImg],
-            [shirtImg, pantsImg, shoesImg],
+            [wireframe],
+            [bgBottom, bgTop],
+            [bgBottom, shirtImg],
+            [bgBottom, shirtImg, pantsImg],
+            [bgBottom, shirtImg, pantsImg, shoesImg],
         ]
+
+        const lgroup = lgroups[step] || lgroups[lgroups.length - 1]
 
         return (
             <ItemSelectorContainer>
-                <ItemContainer image={bgBottom} />
-                {lgroups[step].map((img) => (
-                    <ImageLayer image={img} key={img} />
-                ))}
+                <ItemContainer dark={!step}>
+                    {lgroup.map((img) => (
+                        <ImageLayer image={img} key={img} />
+                    ))}
+                </ItemContainer>
             </ItemSelectorContainer>
         )
     }
@@ -186,7 +187,9 @@ const Rev = styled.div`
 function ItemSelector ({ value, options, onPlay, onPrev, onNext }) {
     return (
         <ItemSelectorContainer>
-            <ItemContainer image={value.src} />
+            <ItemContainer>
+                <ImageLayer image={value.src} />
+            </ItemContainer>
             <Transport>
                 <TransportButton onClick={onPrev}><Rev>►►</Rev></TransportButton>
                 <TransportButton onClick={onPlay}>►</TransportButton>
